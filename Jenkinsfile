@@ -1,9 +1,10 @@
 pipeline {
   agent any
   stages {
-    stage('') {
+    stage('error') {
       steps {
-        sh '''mvn clean install
+        sh '''export M2_HOME=/usr/share/java/maven-3
+mvn clean install
 '''
       }
     }
