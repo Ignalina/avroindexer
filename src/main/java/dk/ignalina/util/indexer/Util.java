@@ -1,6 +1,7 @@
 package dk.ignalina.util.indexer;
 
 import org.apache.avro.Schema;
+import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryDecoder;
@@ -85,15 +86,24 @@ public class Util {
 
 
         try {
-            DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
+            DatumReader<GenericRecord> reader = new GenericDatumReader<>();
+
             BinaryDecoder binaryDecoder = DecoderFactory.get().binaryDecoder(input, null);
+
+
             GenericRecord datum = null;
             Document doc = createDoc();
 
-            while (!binaryDecoder.isEnd()) {
-                datum = (GenericRecord) reader.read(datum, binaryDecoder);
-                addDoc(writer, datum, doc);
+            try (DataFileStream<GenericRecord> streamReader = new DataFileStream<GenericRecord>(input, reader)) {
+                 schema =  streamReader.getSchema();
+                for (long recordCount = 0; streamReader.hasNext() ; recordCount++) {
+                    datum = (GenericRecord) streamReader.next();
+                    addDoc(writer, datum, doc);
+                }
             }
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
