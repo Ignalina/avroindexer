@@ -54,14 +54,13 @@ public class Util {
     }
 
     public static void saveRes(long[] res, String responseDir) throws IOException {
-        int endIndex = responseDir.lastIndexOf("/");
-        if (endIndex != -1)
-        {
-            responseDir = responseDir.substring(0, endIndex); // not forgot to put check if(endIndex != -1)
+        if (responseDir.endsWith("/")) {
+            responseDir=responseDir.substring(responseDir.length()-1);
         }
 
+
+
         String filename=responseDir+"/response_"+Instant.now().getEpochSecond();
-        System.out.println("Saving to "+filename);
 
         BufferedWriter out = new BufferedWriter(new FileWriter(filename));
         for (int i = 0; i < res.length; ++i) {
