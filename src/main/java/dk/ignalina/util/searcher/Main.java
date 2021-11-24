@@ -4,11 +4,10 @@ import dk.ignalina.util.searcher.Util.*;
 import org.apache.avro.Schema;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
+import org.apache.lucene.queryparser.flexible.core.nodes.FieldableNode;
 import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
@@ -31,12 +30,14 @@ public class Main {
         StandardQueryParser queryParserHelper = new StandardQueryParser();
         boolean keepGoing=true;
 
+        String banner=Util.getNiceBanner(indexReader);
+
         while(keepGoing) {
             TotalHitCollector collector = new TotalHitCollector();
 
-            System.out.println("Index has "+indexReader.numDocs()+" of docs,enter a query");
+            System.out.println(banner);
             String queryString = System.console().readLine();
-            Query query = queryParserHelper.parse(queryString, "defaultField");
+            Query query = queryParserHelper.parse(queryString, "texten");
 
             long startTime = System.currentTimeMillis();
             indexSearcher.search(query,collector);
@@ -46,19 +47,23 @@ public class Main {
                 System.out.println("Found ZERO documents took " + (endTime - startTime) + " milliseconds");
                 continue;
             }
+            long searchTime=endTime - startTime;
 
-            System.out.println("Found "+ collector.getTotalHits()+" took " + (endTime - startTime) + " milliseconds");
 
+            long[] res=new long[collector.getTotalHits()];
 
-             startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
             if (collector.getTotalHits() != 0) {
                 for (int i = 0; i < collector.getTotalHits(); i++) {
                     Document doc = indexSearcher.doc(collector.getDoc(i));
+                    res[i]=doc.getField("ref_stored").numericValue().longValue();
                 }
             }
-             endTime = System.currentTimeMillis();
-            System.out.println("Collecting them took " + (endTime - startTime) + " milliseconds");
+            endTime = System.currentTimeMillis();
+            long gatherTime=endTime-startTime;
 
+            System.out.println("Found "+ collector.getTotalHits()+" hits in " + searchTime + " ms. Saved in " +gatherTime +" ms.");
+            Util.saveRes(res,responseDir);
         }
 
         indexReader.close();

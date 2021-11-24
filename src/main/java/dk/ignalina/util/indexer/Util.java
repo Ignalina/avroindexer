@@ -133,39 +133,32 @@ public class Util {
 
         java.util.List<IndexableField> fields = document.getFields();
 
-        ((NumericDocValuesField) fields.get(0)).setLongValue((long) datum.get(0));
-        ((StoredField) fields.get(1)).setLongValue((long) datum.get(0));
+//        ((NumericDocValuesField) fields.get(0)).setLongValue((long) datum.get(0));
+        ((StoredField) fields.get(0)).setLongValue((long) datum.get(0));
 
-        ((TextField) fields.get(2)).setStringValue(datum.get(23).toString());
-        ((TextField) fields.get(3)).setStringValue(datum.get(24).toString());
-        ((TextField) fields.get(4)).setStringValue(datum.get(25).toString());
-        ((TextField) fields.get(5)).setStringValue(datum.get(26).toString());
-        ((TextField) fields.get(6)).setStringValue(datum.get(27).toString());
-        ((TextField) fields.get(7)).setStringValue(datum.get(28).toString());
+        String text=datum.get(23).toString()+
+                datum.get(24).toString()+
+                datum.get(25).toString()+
+                datum.get(26).toString()+
+                datum.get(27).toString()+
+                datum.get(28).toString();
+
+//        System.out.print("text="+text);
+        ((TextField) fields.get(1)).setStringValue(text);
         w.addDocument(document);
 
     }
 
     private static Document createDoc() throws IOException {
 
-        NumericDocValuesField l1 = new NumericDocValuesField("ref", (long) 0);
+//        NumericDocValuesField l1 = new NumericDocValuesField("ref", (long) 0);
         StoredField l1_store = new StoredField("ref_stored", (long) 0);
 
-        TextField fields1 = new TextField("s1", "", Field.Store.NO);
-        TextField fields2 = new TextField("s2", "", Field.Store.NO);
-        TextField fields3 = new TextField("s3", "", Field.Store.NO);
-        TextField fields4 = new TextField("s4", "", Field.Store.NO);
-        TextField fields5 = new TextField("s5", "", Field.Store.NO);
-        TextField fields6 = new TextField("s6", "", Field.Store.NO);
+        TextField fields1 = new TextField("texten", "", Field.Store.NO);
         Document document = new Document();
-        document.add(l1);
+//        document.add(l1);
         document.add(l1_store);
         document.add(fields1);
-        document.add(fields2);
-        document.add(fields3);
-        document.add(fields4);
-        document.add(fields5);
-        document.add(fields6);
 
         return document;
     }
